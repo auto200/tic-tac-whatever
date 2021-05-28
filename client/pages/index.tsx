@@ -205,28 +205,38 @@ const PiecesContainer: React.FC<{
   onPieceClick: (piece: Piece) => void;
 }> = ({ pieces, active, selectedPiece, onPieceClick }) => {
   return (
-    <Flex m="10px" alignItems="center" outline={active ? `2px solid gray` : ""}>
+    <Grid
+      gridTemplateColumns="repeat(auto-fill, minmax(80px, 1fr))"
+      gridGap="3px"
+      m="10px"
+      w="100%"
+      maxW="500px"
+      outline={active ? `2px solid gray` : ""}
+    >
       {pieces.map((piece) => {
-        console.log(piece.used);
-
         return (
-          <Box
+          <AspectRatio
+            ratio={1}
             key={piece.id}
             cursor={active && !piece.used && "pointer"}
-            margin="10px"
-            width={`${piece.size}px`}
             visibility={piece.used ? "hidden" : "visible"}
-            height={`${piece.size}px`}
-            border={`4px solid ${piece.color}`}
-            borderRadius="50%"
             outline={
               active && piece.id === selectedPiece?.id && "2px solid white"
             }
             onClick={() => active && onPieceClick(piece)}
-          ></Box>
+          >
+            <Box>
+              <Box
+                border={`4px solid ${piece.color}`}
+                borderRadius="50%"
+                w={`${piece.size}%`}
+                h={`${piece.size}%`}
+              />
+            </Box>
+          </AspectRatio>
         );
       })}
-    </Flex>
+    </Grid>
   );
 };
 
