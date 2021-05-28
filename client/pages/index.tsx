@@ -1,5 +1,4 @@
 import { AspectRatio, Box, Flex, Grid, Square } from "@chakra-ui/react";
-import { immerable } from "immer";
 import { debounce, sample } from "lodash";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
@@ -24,7 +23,7 @@ class Game {
   playerTurn: string;
   board: Cell[];
   winner: string | null;
-  [immerable] = true;
+  // [immerable] = true;
 
   constructor(boardSize: number = 3) {
     this.id = nanoid();
@@ -37,6 +36,22 @@ class Game {
       .fill(null as unknown as Cell)
       .map(() => new Cell());
     this.winner = null;
+  }
+
+  checkForWinner(): string | null {
+    for (let condition of WINNING_CONDITIONS) {
+      const a = this.board[condition[0]].biggestPiece?.owner;
+      const b = this.board[condition[1]].biggestPiece?.owner;
+      const c = this.board[condition[2]].biggestPiece?.owner;
+      if (!a || !b || !c) {
+        continue;
+      }
+      if (a === b && b === c) {
+        this.winner = a;
+        return a;
+      }
+    }
+    return null;
   }
 }
 class Cell {
@@ -107,7 +122,13 @@ class Piece {
 }
 
 const Home = () => {
-  const [game, setGame] = useImmer<Game>(() => new Game());
+  const [game, setGame] = useImmer<Omit<Game, "checkForWinner">>({
+    id: nanoid(),
+    players: [new Player("player2", "red"), new Player("player1", "green")],
+    playerTurn: "",
+    board: new Array(BOARD_SIZE * BOARD_SIZE).fill(null).map(() => new Cell()),
+    winner: null,
+  });
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
   const [boardSize, setBoardSize] = useState<number>(500);
 
@@ -132,6 +153,24 @@ const Home = () => {
     setSelectedPiece(piece);
   };
 
+  const checkForWinner = (): boolean => {
+    for (let condition of WINNING_CONDITIONS) {
+      const a = game.board[condition[0]].biggestPiece?.owner;
+      const b = game.board[condition[1]].biggestPiece?.owner;
+      const c = game.board[condition[2]].biggestPiece?.owner;
+      if (!a || !b || !c) {
+        continue;
+      }
+      if (a === b && b === c) {
+        setGame((draft) => {
+          draft.winner = a;
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
   const placePieceInCell = (piece: Piece, cell: Cell) => {
     setGame((draft) => {
       if (!selectedPiece) return;
@@ -139,6 +178,8 @@ const Home = () => {
       cell.push(selectedPiece);
 
       piece.used = true;
+
+      checkForWinner();
 
       // toggle turn
       if (draft.players[0].id === draft.playerTurn) {
@@ -167,10 +208,13 @@ const Home = () => {
       justifyContent="center"
       alignItems="center"
     >
-      <Box>{game.players[0].name}</Box>
+      <Box>
+        {game.players[0].name}{" "}
+        {game.winner == game.players[0].id && "WINNER!!!"}
+      </Box>
       <PiecesContainer
         pieces={game.players[0].pieces}
-        active={game.players[0].id == game.playerTurn}
+        active={!game.winner && game.players[0].id == game.playerTurn}
         selectedPiece={selectedPiece}
         onPieceClick={selectPiece}
       />
@@ -185,9 +229,10 @@ const Home = () => {
           maxH="500px"
         >
           {game.board.map((cell) => {
-            const canPlace = selectedPiece
-              ? cell.canPlace(selectedPiece)
-              : false;
+            const canPlace =
+              selectedPiece && !game.winner
+                ? cell.canPlace(selectedPiece)
+                : false;
             return (
               <CellComponent
                 key={cell.id}
@@ -206,11 +251,14 @@ const Home = () => {
       </Square>
       <PiecesContainer
         pieces={game.players[1].pieces}
-        active={game.players[1].id == game.playerTurn}
+        active={!game.winner && game.players[1].id == game.playerTurn}
         selectedPiece={selectedPiece}
         onPieceClick={selectPiece}
       />
-      <Box>{game.players[1].name}</Box>
+      <Box>
+        {game.players[1].name}{" "}
+        {game.winner == game.players[1].id && "WINNER!!!"}
+      </Box>
     </Flex>
   );
 };
