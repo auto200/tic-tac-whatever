@@ -1,10 +1,21 @@
-import { Box, Flex, SimpleGrid } from "@chakra-ui/react";
-import { sample } from "lodash";
+import { AspectRatio, Box, Flex, Grid, Square } from "@chakra-ui/react";
+import { debounce, sample } from "lodash";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
 
 const BOARD_SIZE = 3;
+
+const WINNING_CONDITIONS = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
 
 interface Game {
   id: string;
@@ -16,17 +27,17 @@ interface Game {
 
 interface ICell {
   id: string;
-  pieces: Piece[];
-  getBiggestPiece: () => Piece | null;
+  pieces: IPiece[];
+  getBiggestPiece: () => IPiece | null;
 }
 
 interface Player {
   id: string;
   name: string;
-  pieces: Piece[];
+  pieces: IPiece[];
 }
 
-interface Piece {
+interface IPiece {
   id: string;
   owner: string;
   size: number;
@@ -69,9 +80,27 @@ const Home = () => {
       })),
     winner: null,
   }));
-  const [selectedPiece, setSelectedPiece] = useState<Piece>();
+  const [selectedPiece, setSelectedPiece] = useState<IPiece>();
+  const [boardSize, setBoardSize] = useState<number>(500);
 
-  const selectPiece = (piece: Piece) => {
+  useEffect(() => {
+    const setLimitedSize = () => {
+      setBoardSize(window.innerWidth <= 500 ? window.innerWidth : 500);
+    };
+    setLimitedSize();
+
+    const handleResize = debounce(() => {
+      setLimitedSize();
+    }, 300);
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const selectPiece = (piece: IPiece) => {
     setSelectedPiece(piece);
   };
 
@@ -104,7 +133,6 @@ const Home = () => {
       draft.playerTurn = sample(game.players).id;
     });
   }, []);
-  console.log(game);
 
   return (
     <Flex
@@ -121,36 +149,46 @@ const Home = () => {
         selectedPiece={selectedPiece}
         onPieceClick={selectPiece}
       />
-      <SimpleGrid columns={BOARD_SIZE} spacing="2" bgColor="gray.300">
-        {game.board.map((cell) => {
-          let canPlace = false;
-          if (selectedPiece) {
-            const biggestPiece = cell.getBiggestPiece();
-            if (biggestPiece) {
-              if (selectedPiece.size > biggestPiece.size) {
+      <Square size={boardSize}>
+        <Grid
+          templateColumns="repeat(3, 1fr)"
+          gridGap="10px"
+          bgColor="gray.300"
+          w="100%"
+          maxW="500px"
+          h="100%"
+          maxH="500px"
+        >
+          {game.board.map((cell) => {
+            let canPlace = false;
+            if (selectedPiece) {
+              const biggestPiece = cell.getBiggestPiece();
+              if (biggestPiece) {
+                if (selectedPiece.size > biggestPiece.size) {
+                  canPlace = true;
+                }
+              } else {
                 canPlace = true;
               }
             } else {
-              canPlace = true;
+              canPlace = false;
             }
-          } else {
-            canPlace = false;
-          }
-          return (
-            <Cell
-              key={cell.id}
-              ableToClick={canPlace}
-              onClick={() => {
-                if (canPlace) {
-                  placePieceInCell(cell);
-                }
-              }}
-              cell={cell}
-              canPlace={canPlace}
-            />
-          );
-        })}
-      </SimpleGrid>
+            return (
+              <Cell
+                key={cell.id}
+                ableToClick={canPlace}
+                onClick={() => {
+                  if (canPlace) {
+                    placePieceInCell(cell);
+                  }
+                }}
+                cell={cell}
+                canPlace={canPlace}
+              />
+            );
+          })}
+        </Grid>
+      </Square>
       <PiecesContainer
         pieces={game.players[1].pieces}
         active={game.players[1].id == game.playerTurn}
@@ -161,6 +199,8 @@ const Home = () => {
     </Flex>
   );
 };
+
+export default Home;
 
 const Cell: React.FC<{
   ableToClick: boolean;
@@ -173,8 +213,6 @@ const Cell: React.FC<{
       position="relative"
       justifyContent="center"
       alignItems="center"
-      w="200px"
-      h="200px"
       bgColor="gray.800"
       cursor={ableToClick && "pointer"}
       _hover={ableToClick && { backgroundColor: "gray.900" }}
@@ -199,18 +237,18 @@ const Cell: React.FC<{
 };
 
 const PiecesContainer: React.FC<{
-  pieces: Piece[];
+  pieces: IPiece[];
   active: boolean;
-  selectedPiece: Piece;
-  onPieceClick: (piece: Piece) => void;
+  selectedPiece: IPiece;
+  onPieceClick: (piece: IPiece) => void;
 }> = ({ pieces, active, selectedPiece, onPieceClick }) => {
   return (
     <Grid
       gridTemplateColumns="repeat(auto-fill, minmax(80px, 1fr))"
-      gridGap="3px"
+      gridGap="5px"
       m="10px"
       w="100%"
-      maxW="500px"
+      maxW="550px"
       outline={active ? `2px solid gray` : ""}
     >
       {pieces.map((piece) => {
@@ -239,5 +277,3 @@ const PiecesContainer: React.FC<{
     </Grid>
   );
 };
-
-export default Home;
