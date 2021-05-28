@@ -1,4 +1,5 @@
 import { AspectRatio, Box, Flex, Grid, Square } from "@chakra-ui/react";
+import { immerable } from "immer";
 import { debounce, sample } from "lodash";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
@@ -17,70 +18,97 @@ const WINNING_CONDITIONS = [
   [2, 4, 6],
 ];
 
-interface Game {
+class Game {
   id: string;
   players: [Player, Player];
   playerTurn: string;
-  board: ICell[];
+  board: Cell[];
   winner: string | null;
-}
+  [immerable] = true;
 
-interface ICell {
+  constructor(boardSize: number = 3) {
+    this.id = nanoid();
+    this.players = [
+      new Player("player2", "red"),
+      new Player("player1", "green"),
+    ];
+    this.playerTurn = "";
+    this.board = new Array<Cell>(boardSize * boardSize)
+      .fill(null as unknown as Cell)
+      .map(() => new Cell());
+    this.winner = null;
+  }
+}
+class Cell {
   id: string;
-  pieces: IPiece[];
-  getBiggestPiece: () => IPiece | null;
+  pieces: Piece[];
+  constructor() {
+    this.id = nanoid();
+    this.pieces = [];
+  }
+
+  get biggestPiece(): Piece | null {
+    if (this.pieces.length <= 0) return null;
+    return this.pieces.reduce((prev, current) =>
+      prev.size > current.size ? prev : current
+    );
+  }
+
+  canPlace(piece: Piece) {
+    const biggestPiece = this.biggestPiece;
+    if (!biggestPiece) {
+      return true;
+    }
+    if (piece.size > biggestPiece.size) {
+      return true;
+    }
+
+    return false;
+  }
+
+  push(piece: Piece) {
+    if (this.canPlace(piece)) {
+      this.pieces.push(piece);
+    }
+  }
 }
 
-interface Player {
+class Player {
   id: string;
   name: string;
-  pieces: IPiece[];
+  pieces: Piece[];
+  constructor(name: string, color: string) {
+    this.id = nanoid();
+    this.name = name;
+    this.pieces = [
+      new Piece(this.id, 100, color),
+      new Piece(this.id, 100, color),
+      new Piece(this.id, 60, color),
+      new Piece(this.id, 60, color),
+      new Piece(this.id, 20, color),
+      new Piece(this.id, 20, color),
+    ];
+  }
 }
 
-interface IPiece {
+class Piece {
   id: string;
   owner: string;
   size: number;
   used: boolean;
   color: string;
+  constructor(owner: string, size: number, color: string) {
+    this.id = nanoid();
+    this.owner = owner;
+    this.size = size;
+    this.used = false;
+    this.color = color;
+  }
 }
 
-const getPlayer = (name: string = "player", pieceColor = "red"): Player => {
-  const id = nanoid();
-  return {
-    id,
-    name: name,
-    pieces: [
-      { id: nanoid(), owner: id, size: 100, used: false, color: pieceColor },
-      { id: nanoid(), owner: id, size: 100, used: false, color: pieceColor },
-      { id: nanoid(), owner: id, size: 60, used: false, color: pieceColor },
-      { id: nanoid(), owner: id, size: 60, used: false, color: pieceColor },
-      { id: nanoid(), owner: id, size: 20, used: false, color: pieceColor },
-      { id: nanoid(), owner: id, size: 20, used: false, color: pieceColor },
-    ],
-  };
-};
-
 const Home = () => {
-  const [game, setGame] = useImmer<Game>(() => ({
-    id: nanoid(),
-    players: [getPlayer("player2"), getPlayer("player1", "green")],
-    playerTurn: "",
-    board: new Array<ICell>(BOARD_SIZE * BOARD_SIZE)
-      .fill(null)
-      .map<ICell>(() => ({
-        id: nanoid(),
-        pieces: [],
-        getBiggestPiece() {
-          if ((this as ICell).pieces.length <= 0) return null;
-          return (this as ICell).pieces.reduce((prev, current) =>
-            prev.size > current.size ? prev : current
-          );
-        },
-      })),
-    winner: null,
-  }));
-  const [selectedPiece, setSelectedPiece] = useState<IPiece>();
+  const [game, setGame] = useImmer<Game>(() => new Game());
+  const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
   const [boardSize, setBoardSize] = useState<number>(500);
 
   useEffect(() => {
@@ -100,37 +128,34 @@ const Home = () => {
     };
   }, []);
 
-  const selectPiece = (piece: IPiece) => {
+  const selectPiece = (piece: Piece) => {
     setSelectedPiece(piece);
   };
 
-  const placePieceInCell = (cell: ICell) => {
+  const placePieceInCell = (piece: Piece, cell: Cell) => {
     setGame((draft) => {
-      const piece = { ...selectedPiece, used: true };
+      if (!selectedPiece) return;
 
-      draft.board.find(({ id }) => id === cell.id).pieces.push(piece);
+      cell.push(selectedPiece);
 
-      {
-        const pieces = draft.players.find(
-          ({ id }) => id === piece.owner
-        ).pieces;
-        pieces.splice(
-          pieces.findIndex((oldPiece) => oldPiece.id === piece.id),
-          1,
-          piece
-        );
+      piece.used = true;
+
+      // toggle turn
+      if (draft.players[0].id === draft.playerTurn) {
+        draft.playerTurn = draft.players[1].id;
+      } else {
+        draft.playerTurn = draft.players[0].id;
       }
-
-      draft.playerTurn = draft.players.find(
-        ({ id }) => id !== draft.playerTurn
-      ).id;
     });
     setSelectedPiece(null);
   };
 
   useEffect(() => {
     setGame((draft) => {
-      draft.playerTurn = sample(game.players).id;
+      const randomPlayer = sample(draft.players);
+      if (randomPlayer) {
+        draft.playerTurn = randomPlayer.id;
+      }
     });
   }, []);
 
@@ -160,26 +185,16 @@ const Home = () => {
           maxH="500px"
         >
           {game.board.map((cell) => {
-            let canPlace = false;
-            if (selectedPiece) {
-              const biggestPiece = cell.getBiggestPiece();
-              if (biggestPiece) {
-                if (selectedPiece.size > biggestPiece.size) {
-                  canPlace = true;
-                }
-              } else {
-                canPlace = true;
-              }
-            } else {
-              canPlace = false;
-            }
+            const canPlace = selectedPiece
+              ? cell.canPlace(selectedPiece)
+              : false;
             return (
-              <Cell
+              <CellComponent
                 key={cell.id}
                 ableToClick={canPlace}
                 onClick={() => {
                   if (canPlace) {
-                    placePieceInCell(cell);
+                    placePieceInCell(selectedPiece!, cell);
                   }
                 }}
                 cell={cell}
@@ -202,10 +217,10 @@ const Home = () => {
 
 export default Home;
 
-const Cell: React.FC<{
+const CellComponent: React.FC<{
   ableToClick: boolean;
   onClick: () => void;
-  cell: ICell;
+  cell: Cell;
   canPlace: boolean;
 }> = ({ onClick, ableToClick, cell, canPlace }) => {
   return (
@@ -214,8 +229,8 @@ const Cell: React.FC<{
       justifyContent="center"
       alignItems="center"
       bgColor="gray.800"
-      cursor={ableToClick && "pointer"}
-      _hover={ableToClick && { backgroundColor: "gray.900" }}
+      cursor={ableToClick ? "pointer" : ""}
+      _hover={ableToClick ? { backgroundColor: "gray.900" } : {}}
       onClick={() => ableToClick && onClick()}
     >
       {cell.pieces.map((piece) => {
@@ -224,7 +239,7 @@ const Cell: React.FC<{
             key={piece.id}
             position="absolute"
             margin="auto"
-            cursor={canPlace && "pointer"}
+            cursor={canPlace ? "pointer" : ""}
             width={`${piece.size}px`}
             height={`${piece.size}px`}
             border={`4px solid ${piece.color}`}
@@ -237,10 +252,10 @@ const Cell: React.FC<{
 };
 
 const PiecesContainer: React.FC<{
-  pieces: IPiece[];
+  pieces: Piece[];
   active: boolean;
-  selectedPiece: IPiece;
-  onPieceClick: (piece: IPiece) => void;
+  selectedPiece: Piece | null;
+  onPieceClick: (piece: Piece) => void;
 }> = ({ pieces, active, selectedPiece, onPieceClick }) => {
   return (
     <Grid
@@ -256,10 +271,10 @@ const PiecesContainer: React.FC<{
           <AspectRatio
             ratio={1}
             key={piece.id}
-            cursor={active && !piece.used && "pointer"}
+            cursor={active && !piece.used ? "pointer" : "auto"}
             visibility={piece.used ? "hidden" : "visible"}
             outline={
-              active && piece.id === selectedPiece?.id && "2px solid white"
+              active && piece.id === selectedPiece?.id ? "2px solid white" : ""
             }
             onClick={() => active && onPieceClick(piece)}
           >
