@@ -11,10 +11,12 @@ const Pieces: React.FC<{
     <Grid
       gridTemplateColumns="repeat(auto-fill, minmax(80px, 1fr))"
       gridGap="5px"
+      p="5px"
       m="10px"
       w="100%"
       maxW="550px"
-      outline={active ? `2px solid gray` : ""}
+      outline={[null, null, active ? `2px solid gray` : ""]}
+      bgColor={active ? "gray.700" : "gray.800"}
     >
       {pieces.map((piece) => {
         return (

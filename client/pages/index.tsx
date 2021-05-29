@@ -85,15 +85,6 @@ const Home = () => {
 
   return (
     <>
-      <Center pos="absolute" top="5px" left="5px">
-        <Checkbox
-          isChecked={showOnlyBiggesPieceInCell}
-          onChange={(e) => setShowOnlyBiggesPieceInCell(e.target.checked)}
-          size="lg"
-          mr="5px"
-        />
-        Show only biggest piece in cell
-      </Center>
       <Flex
         w="100%"
         h="100%"
@@ -131,6 +122,15 @@ const Home = () => {
           {game.winner == game.players[1].id && "WINNER!!!"}
         </Box>
       </Flex>
+      <Center mt="50px">
+        <Checkbox
+          isChecked={showOnlyBiggesPieceInCell}
+          onChange={(e) => setShowOnlyBiggesPieceInCell(e.target.checked)}
+          size="lg"
+          mr="5px"
+        />
+        Show only biggest piece in cell
+      </Center>
     </>
   );
 };
