@@ -133,14 +133,12 @@ const Home = () => {
   const [boardSize, setBoardSize] = useState<number>(500);
 
   useEffect(() => {
-    const setLimitedSize = () => {
-      setBoardSize(window.innerWidth <= 500 ? window.innerWidth : 500);
-    };
-    setLimitedSize();
-
     const handleResize = debounce(() => {
-      setLimitedSize();
+      setBoardSize(
+        Math.min(document.getElementsByTagName("body")[0].clientWidth, 500)
+      );
     }, 300);
+    handleResize();
 
     window.addEventListener("resize", handleResize);
 
@@ -153,6 +151,7 @@ const Home = () => {
     setSelectedPiece(piece);
   };
 
+  //https://dev.to/bornasepic/pure-and-simple-tic-tac-toe-with-javascript-4pgn
   const checkForWinner = (): boolean => {
     for (let condition of WINNING_CONDITIONS) {
       const a = game.board[condition[0]].biggestPiece?.owner;
