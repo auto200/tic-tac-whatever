@@ -7,6 +7,9 @@ interface Props {
   cell: Cell;
   canPlace: boolean;
   showOnlyBiggesPiece: boolean;
+  myId: string;
+  myPiecesColor: string;
+  enemyPiecesColor: string;
 }
 const CellComponent: React.FC<Props> = ({
   onClick,
@@ -14,6 +17,9 @@ const CellComponent: React.FC<Props> = ({
   cell,
   canPlace,
   showOnlyBiggesPiece,
+  myId,
+  myPiecesColor,
+  enemyPiecesColor,
 }) => {
   const biggestPieceInCell = cell.biggestPiece;
   return (
@@ -32,7 +38,9 @@ const CellComponent: React.FC<Props> = ({
           margin="auto"
           cursor={canPlace ? "pointer" : ""}
           size={`${biggestPieceInCell.size}px`}
-          border={`4px solid ${biggestPieceInCell.color}`}
+          border={`4px solid ${
+            biggestPieceInCell.owner === myId ? myPiecesColor : enemyPiecesColor
+          }`}
           borderRadius="50%"
         />
       ) : (
@@ -44,7 +52,9 @@ const CellComponent: React.FC<Props> = ({
               margin="auto"
               cursor={canPlace ? "pointer" : ""}
               size={`${piece.size}px`}
-              border={`4px solid ${piece.color}`}
+              border={`4px solid ${
+                piece.owner === myId ? myPiecesColor : enemyPiecesColor
+              }`}
               borderRadius="50%"
             />
           );

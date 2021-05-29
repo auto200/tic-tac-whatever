@@ -3,10 +3,11 @@ import { Piece } from "../classes";
 
 const Pieces: React.FC<{
   pieces: Piece[];
+  color: string;
   active: boolean;
   selectedPiece: Piece | null;
   onPieceClick: (piece: Piece) => void;
-}> = ({ pieces, active, selectedPiece, onPieceClick }) => {
+}> = ({ pieces, color, active, selectedPiece, onPieceClick }) => {
   return (
     <Grid
       gridTemplateColumns="repeat(auto-fill, minmax(80px, 1fr))"
@@ -32,7 +33,7 @@ const Pieces: React.FC<{
           >
             <Box>
               <Square
-                border={`4px solid ${piece.color}`}
+                border={`4px solid ${color}`}
                 borderRadius="50%"
                 size={`${piece.size}%`}
               />

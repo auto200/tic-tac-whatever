@@ -1,3 +1,4 @@
+import { sample } from "lodash";
 import { nanoid } from "nanoid";
 
 export class Game {
@@ -5,15 +6,13 @@ export class Game {
   players: [Player, Player];
   playerTurn: string;
   board: Cell[];
-  winner: string | null;
+  winner: Player | null;
 
   constructor() {
     this.id = nanoid();
-    this.players = [
-      new Player("player2", "red"),
-      new Player("player1", "green"),
-    ];
-    this.playerTurn = "";
+    this.players = [new Player("player2"), new Player("player1")];
+    this.playerTurn = sample(this.players)!.id;
+    console.log(this.players);
     this.board = new Array<Cell>(3 * 3)
       .fill(null as unknown as Cell)
       .map(() => new Cell());
@@ -75,16 +74,16 @@ export class Player {
   id: string;
   name: string;
   pieces: Piece[];
-  constructor(name: string, color: string) {
+  constructor(name: string) {
     this.id = nanoid();
     this.name = name;
     this.pieces = [
-      new Piece(this.id, 100, color),
-      new Piece(this.id, 100, color),
-      new Piece(this.id, 60, color),
-      new Piece(this.id, 60, color),
-      new Piece(this.id, 20, color),
-      new Piece(this.id, 20, color),
+      new Piece(this.id, 100),
+      new Piece(this.id, 100),
+      new Piece(this.id, 60),
+      new Piece(this.id, 60),
+      new Piece(this.id, 20),
+      new Piece(this.id, 20),
     ];
   }
 }
@@ -94,12 +93,10 @@ export class Piece {
   owner: string;
   size: number;
   used: boolean;
-  color: string;
-  constructor(owner: string, size: number, color: string) {
+  constructor(owner: string, size: number) {
     this.id = nanoid();
     this.owner = owner;
     this.size = size;
     this.used = false;
-    this.color = color;
   }
 }

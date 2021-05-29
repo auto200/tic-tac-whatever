@@ -8,3 +8,6 @@ export const WINNING_CONDITIONS = [
   [0, 4, 8],
   [2, 4, 6],
 ];
+
+export const MY_PIECES_COLOR = "green";
+export const ENEMY_PIECES_COLOR = "red";

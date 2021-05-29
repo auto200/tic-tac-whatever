@@ -1,14 +1,17 @@
 import { Grid, Square } from "@chakra-ui/layout";
-import { Cell, Piece } from "../classes";
+import { Cell, Piece, Player } from "../classes";
 import CellComponent from "./Cell";
 
 interface Props {
   size: number;
   board: Cell[];
-  winner: string | null;
+  winner: Player | null;
   selectedPiece: Piece | null;
   placePieceInCell: (piece: Piece, cell: Cell) => void;
   showOnlyBiggesPieceInCell: boolean;
+  myId: string;
+  myPiecesColor: string;
+  enemyPiecesColor: string;
 }
 
 const Board: React.FC<Props> = ({
@@ -18,6 +21,9 @@ const Board: React.FC<Props> = ({
   selectedPiece,
   placePieceInCell,
   showOnlyBiggesPieceInCell,
+  myId,
+  myPiecesColor,
+  enemyPiecesColor,
 }) => {
   return (
     <Square size={size}>
@@ -45,6 +51,9 @@ const Board: React.FC<Props> = ({
               cell={cell}
               canPlace={canPlace}
               showOnlyBiggesPiece={showOnlyBiggesPieceInCell}
+              myId={myId}
+              myPiecesColor={myPiecesColor}
+              enemyPiecesColor={enemyPiecesColor}
             />
           );
         })}

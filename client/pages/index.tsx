@@ -6,7 +6,11 @@ import { useImmer } from "use-immer";
 import { Cell, Game, Piece, Player } from "../classes";
 import Board from "../components/Board";
 import Pieces from "../components/Pieces";
-import { WINNING_CONDITIONS } from "../utils/constants";
+import {
+  WINNING_CONDITIONS,
+  MY_PIECES_COLOR,
+  ENEMY_PIECES_COLOR,
+} from "../utils/constants";
 
 const Home = () => {
   const [game, setGame] = useImmer<Omit<Game, "checkForWinner">>({
@@ -98,6 +102,7 @@ const Home = () => {
         </Box>
         <Pieces
           pieces={game.players[0].pieces}
+          color={ENEMY_PIECES_COLOR}
           active={!game.winner && game.players[0].id == game.playerTurn}
           selectedPiece={selectedPiece}
           onPieceClick={selectPiece}
@@ -109,6 +114,9 @@ const Home = () => {
           selectedPiece={selectedPiece}
           placePieceInCell={placePieceInCell}
           showOnlyBiggesPieceInCell={showOnlyBiggesPieceInCell}
+          myId={game.players[1].id}
+          myPiecesColor={MY_PIECES_COLOR}
+          enemyPiecesColor={ENEMY_PIECES_COLOR}
         />
 
         <Pieces
