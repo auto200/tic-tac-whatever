@@ -1,4 +1,14 @@
-import { Box, Center, Checkbox, Flex } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Checkbox,
+  Flex,
+  Heading,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalOverlay,
+} from "@chakra-ui/react";
 import { debounce, sample } from "lodash";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
@@ -12,27 +22,34 @@ import {
   ENEMY_PIECES_COLOR,
 } from "../utils/constants";
 
+const getNewGame = (): Omit<Game, "checkForWinner"> => ({
+  id: nanoid(),
+  players: [new Player("player2"), new Player("player1")],
+  playerTurn: "",
+  board: new Array(3 * 3).fill(null).map(() => new Cell()),
+  winner: null,
+});
+
 const Home = () => {
-  const [game, setGame] = useImmer<Omit<Game, "checkForWinner">>({
-    id: nanoid(),
-    players: [new Player("player2", "red"), new Player("player1", "green")],
-    playerTurn: "",
-    board: new Array(3 * 3).fill(null).map(() => new Cell()),
-    winner: null,
-  });
+  const [game, setGame] = useImmer<Omit<Game, "checkForWinner">>(() =>
+    getNewGame()
+  );
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
   const [boardSize, setBoardSize] = useState<number>(500);
   const [showOnlyBiggesPieceInCell, setShowOnlyBiggesPieceInCell] =
     useState<boolean>(false);
 
-  useEffect(() => {
+  const pickRandomPlayer = () => {
     setGame((draft) => {
       const randomPlayer = sample(draft.players);
       if (randomPlayer) {
         draft.playerTurn = randomPlayer.id;
       }
     });
+  };
 
+  useEffect(() => {
+    pickRandomPlayer();
     const handleResize = debounce(() => {
       setBoardSize(
         Math.min(document.getElementsByTagName("body")[0].clientWidth, 500)
@@ -62,7 +79,8 @@ const Home = () => {
       }
       if (a === b && b === c) {
         setGame((draft) => {
-          draft.winner = a;
+          const winner = draft.players.find(({ id }) => id === a);
+          draft.winner = winner!;
         });
         break;
       }
@@ -97,8 +115,10 @@ const Home = () => {
         alignItems="center"
       >
         <Box>
-          {game.players[0].name}{" "}
-          {game.winner == game.players[0].id && "WINNER!!!"}
+          <Heading m="10px">
+            {game.players[0].name}{" "}
+            {game.winner?.id == game.players[0].id && "WINNER!!!"}
+          </Heading>
         </Box>
         <Pieces
           pieces={game.players[0].pieces}
@@ -121,13 +141,16 @@ const Home = () => {
 
         <Pieces
           pieces={game.players[1].pieces}
+          color={MY_PIECES_COLOR}
           active={!game.winner && game.players[1].id == game.playerTurn}
           selectedPiece={selectedPiece}
           onPieceClick={selectPiece}
         />
         <Box>
-          {game.players[1].name}{" "}
-          {game.winner == game.players[1].id && "WINNER!!!"}
+          <Heading m="10px">
+            {game.players[1].name}{" "}
+            {game.winner?.id == game.players[1].id && "WINNER!!!"}
+          </Heading>
         </Box>
       </Flex>
       <Center mt="50px">
@@ -139,6 +162,23 @@ const Home = () => {
         />
         Show only biggest piece in cell
       </Center>
+      <Modal
+        isOpen={!!game.winner}
+        onClose={() => {
+          setGame(getNewGame());
+          setSelectedPiece(null);
+          pickRandomPlayer();
+        }}
+        isCentered={true}
+        motionPreset="scale"
+      >
+        <ModalOverlay />
+        <ModalContent bgColor="transparent" boxShadow="">
+          <ModalBody textAlign="center">
+            <Heading>{game.winner?.name} is a winner</Heading>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
