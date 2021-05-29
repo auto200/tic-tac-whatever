@@ -1,10 +1,10 @@
-import { Box, Flex, Grid, Square } from "@chakra-ui/react";
+import { Box, Center, Checkbox, Flex } from "@chakra-ui/react";
 import { debounce, sample } from "lodash";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
 import { Cell, Game, Piece, Player } from "../classes";
-import CellComponent from "../components/Cell";
+import Board from "../components/Board";
 import Pieces from "../components/Pieces";
 import { WINNING_CONDITIONS } from "../utils/constants";
 
@@ -18,6 +18,8 @@ const Home = () => {
   });
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
   const [boardSize, setBoardSize] = useState<number>(500);
+  const [showOnlyBiggesPieceInCell, setShowOnlyBiggesPieceInCell] =
+    useState<boolean>(false);
 
   useEffect(() => {
     setGame((draft) => {
@@ -82,65 +84,54 @@ const Home = () => {
   };
 
   return (
-    <Flex
-      w="100%"
-      h="100%"
-      flexDir="column"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Box>
-        {game.players[0].name}{" "}
-        {game.winner == game.players[0].id && "WINNER!!!"}
-      </Box>
-      <Pieces
-        pieces={game.players[0].pieces}
-        active={!game.winner && game.players[0].id == game.playerTurn}
-        selectedPiece={selectedPiece}
-        onPieceClick={selectPiece}
-      />
-      <Square size={boardSize}>
-        <Grid
-          templateColumns="repeat(3, 1fr)"
-          gridGap="10px"
-          bgColor="gray.300"
-          w="100%"
-          maxW="500px"
-          h="100%"
-          maxH="500px"
-        >
-          {game.board.map((cell) => {
-            const canPlace =
-              !game.winner && selectedPiece
-                ? cell.canPlace(selectedPiece)
-                : false;
-            return (
-              <CellComponent
-                key={cell.id}
-                ableToClick={canPlace}
-                onClick={() => {
-                  if (canPlace) {
-                    placePieceInCell(selectedPiece!, cell);
-                  }
-                }}
-                cell={cell}
-                canPlace={canPlace}
-              />
-            );
-          })}
-        </Grid>
-      </Square>
-      <Pieces
-        pieces={game.players[1].pieces}
-        active={!game.winner && game.players[1].id == game.playerTurn}
-        selectedPiece={selectedPiece}
-        onPieceClick={selectPiece}
-      />
-      <Box>
-        {game.players[1].name}{" "}
-        {game.winner == game.players[1].id && "WINNER!!!"}
-      </Box>
-    </Flex>
+    <>
+      <Center pos="absolute" top="5px" left="5px">
+        <Checkbox
+          isChecked={showOnlyBiggesPieceInCell}
+          onChange={(e) => setShowOnlyBiggesPieceInCell(e.target.checked)}
+          size="lg"
+          mr="5px"
+        />
+        Show only biggest piece in cell
+      </Center>
+      <Flex
+        w="100%"
+        h="100%"
+        flexDir="column"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Box>
+          {game.players[0].name}{" "}
+          {game.winner == game.players[0].id && "WINNER!!!"}
+        </Box>
+        <Pieces
+          pieces={game.players[0].pieces}
+          active={!game.winner && game.players[0].id == game.playerTurn}
+          selectedPiece={selectedPiece}
+          onPieceClick={selectPiece}
+        />
+        <Board
+          size={boardSize}
+          board={game.board}
+          winner={game.winner}
+          selectedPiece={selectedPiece}
+          placePieceInCell={placePieceInCell}
+          showOnlyBiggesPieceInCell={showOnlyBiggesPieceInCell}
+        />
+
+        <Pieces
+          pieces={game.players[1].pieces}
+          active={!game.winner && game.players[1].id == game.playerTurn}
+          selectedPiece={selectedPiece}
+          onPieceClick={selectPiece}
+        />
+        <Box>
+          {game.players[1].name}{" "}
+          {game.winner == game.players[1].id && "WINNER!!!"}
+        </Box>
+      </Flex>
+    </>
   );
 };
 

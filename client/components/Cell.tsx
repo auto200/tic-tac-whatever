@@ -6,13 +6,16 @@ interface Props {
   onClick: () => void;
   cell: Cell;
   canPlace: boolean;
+  showOnlyBiggesPiece: boolean;
 }
 const CellComponent: React.FC<Props> = ({
   onClick,
   ableToClick,
   cell,
   canPlace,
+  showOnlyBiggesPiece,
 }) => {
+  const biggestPieceInCell = cell.biggestPiece;
   return (
     <Flex
       position="relative"
@@ -23,19 +26,30 @@ const CellComponent: React.FC<Props> = ({
       _hover={ableToClick ? { backgroundColor: "gray.900" } : {}}
       onClick={() => ableToClick && onClick()}
     >
-      {cell.pieces.map((piece) => {
-        return (
-          <Square
-            key={piece.id}
-            position="absolute"
-            margin="auto"
-            cursor={canPlace ? "pointer" : ""}
-            size={`${piece.size}px`}
-            border={`4px solid ${piece.color}`}
-            borderRadius="50%"
-          />
-        );
-      })}
+      {showOnlyBiggesPiece && biggestPieceInCell ? (
+        <Square
+          position="absolute"
+          margin="auto"
+          cursor={canPlace ? "pointer" : ""}
+          size={`${biggestPieceInCell.size}px`}
+          border={`4px solid ${biggestPieceInCell.color}`}
+          borderRadius="50%"
+        />
+      ) : (
+        cell.pieces.map((piece) => {
+          return (
+            <Square
+              key={piece.id}
+              position="absolute"
+              margin="auto"
+              cursor={canPlace ? "pointer" : ""}
+              size={`${piece.size}px`}
+              border={`4px solid ${piece.color}`}
+              borderRadius="50%"
+            />
+          );
+        })
+      )}
     </Flex>
   );
 };
