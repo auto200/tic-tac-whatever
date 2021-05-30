@@ -7,6 +7,7 @@ export class Game {
   playerTurn: string;
   board: Cell[];
   winner: Player | null;
+  draw: boolean;
 
   constructor() {
     this.id = nanoid();
@@ -17,6 +18,7 @@ export class Game {
       .fill(null as unknown as Cell)
       .map(() => new Cell());
     this.winner = null;
+    this.draw = false;
   }
 
   //   checkForWinner(): string | null {
@@ -51,6 +53,8 @@ export class Cell {
   }
 
   canPlace(piece: Piece) {
+    if (piece.used) return false;
+
     const biggestPiece = this.biggestPiece;
     if (!biggestPiece) {
       return true;

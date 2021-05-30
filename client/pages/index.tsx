@@ -28,6 +28,7 @@ const getNewGame = (): Game => ({
   playerTurn: "",
   board: new Array(3 * 3).fill(null).map(() => new Cell()),
   winner: null,
+  draw: false,
 });
 
 const Home = () => {
@@ -69,7 +70,7 @@ const Home = () => {
   };
 
   //https://dev.to/bornasepic/pure-and-simple-tic-tac-toe-with-javascript-4pgn
-  const checkForWinner = () => {
+  const validateGameState = () => {
     for (const condition of WINNING_CONDITIONS) {
       const a = game.board[condition[0]].biggestPiece?.owner;
       const b = game.board[condition[1]].biggestPiece?.owner;
@@ -81,8 +82,19 @@ const Home = () => {
         setGame((draft) => {
           draft.winner = draft.players.find(({ id }) => id === a)!;
         });
-        break;
+        return;
       }
+    }
+
+    //check for draw
+    const player = game.players.find(({ id }) => id === game.playerTurn);
+    const draw = !player?.pieces.some((piece) =>
+      game.board.some((cell) => cell.canPlace(piece))
+    );
+    if (draw) {
+      setGame((draft) => {
+        draft.draw = true;
+      });
     }
   };
 
@@ -92,7 +104,7 @@ const Home = () => {
 
       cell.push(piece);
 
-      checkForWinner();
+      validateGameState();
 
       // toggle turn
       if (draft.playerTurn === draft.players[0].id) {
@@ -129,7 +141,6 @@ const Home = () => {
         <Board
           size={boardSize}
           board={game.board}
-          winner={game.winner}
           selectedPiece={selectedPiece}
           placePieceInCell={placePieceInCell}
           showOnlyBiggesPieceInCell={showOnlyBiggesPieceInCell}
@@ -162,7 +173,7 @@ const Home = () => {
         Show only biggest piece in cell
       </Center>
       <Modal
-        isOpen={!!game.winner}
+        isOpen={!!game.winner || game.draw}
         onClose={() => {
           setGame(getNewGame());
           setSelectedPiece(null);
@@ -174,7 +185,9 @@ const Home = () => {
         <ModalOverlay />
         <ModalContent bgColor="transparent" boxShadow="">
           <ModalBody textAlign="center">
-            <Heading>{game.winner?.name} is a winner</Heading>
+            <Heading>
+              {game.draw ? `Draw` : `${game.winner?.name} is a winner`}
+            </Heading>
           </ModalBody>
         </ModalContent>
       </Modal>
