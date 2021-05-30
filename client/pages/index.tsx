@@ -22,7 +22,7 @@ import {
   ENEMY_PIECES_COLOR,
 } from "../utils/constants";
 
-const getNewGame = (): Omit<Game, "checkForWinner"> => ({
+const getNewGame = (): Game => ({
   id: nanoid(),
   players: [new Player("player2"), new Player("player1")],
   playerTurn: "",
@@ -70,7 +70,7 @@ const Home = () => {
 
   //https://dev.to/bornasepic/pure-and-simple-tic-tac-toe-with-javascript-4pgn
   const checkForWinner = () => {
-    for (let condition of WINNING_CONDITIONS) {
+    for (const condition of WINNING_CONDITIONS) {
       const a = game.board[condition[0]].biggestPiece?.owner;
       const b = game.board[condition[1]].biggestPiece?.owner;
       const c = game.board[condition[2]].biggestPiece?.owner;
@@ -79,8 +79,7 @@ const Home = () => {
       }
       if (a === b && b === c) {
         setGame((draft) => {
-          const winner = draft.players.find(({ id }) => id === a);
-          draft.winner = winner!;
+          draft.winner = draft.players.find(({ id }) => id === a)!;
         });
         break;
       }
@@ -123,7 +122,7 @@ const Home = () => {
         <Pieces
           pieces={game.players[0].pieces}
           color={ENEMY_PIECES_COLOR}
-          active={!game.winner && game.players[0].id == game.playerTurn}
+          turnActive={!game.winner && game.players[0].id == game.playerTurn}
           selectedPiece={selectedPiece}
           onPieceClick={selectPiece}
         />
@@ -142,7 +141,7 @@ const Home = () => {
         <Pieces
           pieces={game.players[1].pieces}
           color={MY_PIECES_COLOR}
-          active={!game.winner && game.players[1].id == game.playerTurn}
+          turnActive={!game.winner && game.players[1].id == game.playerTurn}
           selectedPiece={selectedPiece}
           onPieceClick={selectPiece}
         />

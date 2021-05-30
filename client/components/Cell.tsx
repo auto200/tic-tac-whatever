@@ -1,4 +1,4 @@
-import { Flex, Square } from "@chakra-ui/react";
+import { Box, Flex, ScaleFade, Square } from "@chakra-ui/react";
 import { Cell } from "../classes";
 
 interface Props {
@@ -52,11 +52,18 @@ const CellComponent: React.FC<Props> = ({
               margin="auto"
               cursor={canPlace ? "pointer" : ""}
               size={`${piece.size}px`}
-              border={`4px solid ${
-                piece.owner === myId ? myPiecesColor : enemyPiecesColor
-              }`}
-              borderRadius="50%"
-            />
+            >
+              <ScaleFade in={true} style={{ width: "100%", height: "100%" }}>
+                <Box
+                  w="100%"
+                  h="100%"
+                  border={`4px solid ${
+                    piece.owner === myId ? myPiecesColor : enemyPiecesColor
+                  }`}
+                  borderRadius="50%"
+                ></Box>
+              </ScaleFade>
+            </Square>
           );
         })
       )}
