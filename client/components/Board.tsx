@@ -1,11 +1,10 @@
 import { Grid, Square } from "@chakra-ui/layout";
-import { Cell, Piece, Player } from "../classes";
+import { Cell, Piece } from "../classes";
 import CellComponent from "./Cell";
 
 interface Props {
   size: number;
   board: Cell[];
-  winner: Player | null;
   selectedPiece: Piece | null;
   placePieceInCell: (piece: Piece, cell: Cell) => void;
   showOnlyBiggesPieceInCell: boolean;
@@ -17,7 +16,6 @@ interface Props {
 const Board: React.FC<Props> = ({
   size,
   board,
-  winner,
   selectedPiece,
   placePieceInCell,
   showOnlyBiggesPieceInCell,
@@ -37,8 +35,7 @@ const Board: React.FC<Props> = ({
         maxH="500px"
       >
         {board.map((cell) => {
-          const canPlace =
-            !winner && selectedPiece ? cell.canPlace(selectedPiece) : false;
+          const canPlace = !!selectedPiece && cell.canPlace(selectedPiece);
           return (
             <CellComponent
               key={cell.id}
