@@ -1,0 +1,3 @@
+export enum SOCKET_EVENTS {
+  GAME_UPDATE = "GAME_UPDATE",
+}
