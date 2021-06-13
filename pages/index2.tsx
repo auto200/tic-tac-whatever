@@ -20,7 +20,7 @@ import {
   WINNING_CONDITIONS,
   MY_PIECES_COLOR,
   ENEMY_PIECES_COLOR,
-} from "../utils/constants";
+} from "utils/CONSTANTS";
 
 const getNewGame = (): Game => ({
   id: nanoid(),
