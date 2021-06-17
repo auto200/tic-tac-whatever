@@ -1,13 +1,14 @@
 import { AspectRatio, Grid, ScaleFade, Square } from "@chakra-ui/react";
-import { Piece } from "../classes";
+import { IPiece } from "utils/classes/index";
 
 const Pieces: React.FC<{
-  pieces: Piece[];
+  pieces: IPiece[];
   color: string;
   turnActive: boolean;
-  selectedPiece: Piece | null;
-  onPieceClick: (piece: Piece) => void;
-}> = ({ pieces, color, turnActive, selectedPiece, onPieceClick }) => {
+  owner: "ENEMY" | "ALLY";
+  selectedPieceId: string;
+  onPieceClick: (pieceId: string) => void;
+}> = ({ pieces, color, turnActive, owner, selectedPieceId, onPieceClick }) => {
   return (
     <Grid
       gridTemplateColumns="repeat(auto-fill, minmax(80px, 1fr))"
@@ -20,17 +21,18 @@ const Pieces: React.FC<{
       bgColor={turnActive ? "gray.700" : "gray.800"}
     >
       {pieces.map((piece) => {
+        const canClickOnPiece = owner === "ALLY" && turnActive && !piece.used;
         return (
           <AspectRatio
             ratio={1}
             key={piece.id}
-            cursor={turnActive && !piece.used ? "pointer" : "auto"}
+            cursor={canClickOnPiece ? "pointer" : "auto"}
             outline={
-              turnActive && piece.id === selectedPiece?.id
+              turnActive && piece.id === selectedPieceId
                 ? "2px solid white"
                 : ""
             }
-            onClick={() => !piece.used && onPieceClick(piece)}
+            onClick={() => canClickOnPiece && onPieceClick(piece.id)}
           >
             <ScaleFade in={!piece.used}>
               <Square

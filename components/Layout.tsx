@@ -18,7 +18,7 @@ const Layout: React.FC = ({ children }) => {
           color="green.300"
           fontWeight="bold"
         >
-          Inspiration
+          The Inspiration
         </Link>
       </Center>
     </Flex>

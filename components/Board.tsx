@@ -1,27 +1,30 @@
 import { Grid, Square } from "@chakra-ui/layout";
-import { Cell, Piece } from "../classes";
+import { ICell } from "utils/classes";
+// import { IPiece } from "utils/classes";
 import CellComponent from "./Cell";
 
 interface Props {
   size: number;
-  board: Cell[];
-  selectedPiece: Piece | null;
-  placePieceInCell: (piece: Piece, cell: Cell) => void;
-  showOnlyBiggesPieceInCell: boolean;
+  board: ICell[];
+  // allyTurn: boolean;
+  // selectedPiece: IPiece | null;
+  // placePieceInCell: (piece: IPiece, cell: ICell) => void;
+  // showOnlyBiggesPieceInCell: boolean;
   myId: string;
-  myPiecesColor: string;
-  enemyPiecesColor: string;
+  allyColor: string;
+  enemyColor: string;
 }
 
 const Board: React.FC<Props> = ({
   size,
   board,
-  selectedPiece,
-  placePieceInCell,
-  showOnlyBiggesPieceInCell,
+  // allyTurn,
+  // selectedPiece,
+  // placePieceInCell,
+  // showOnlyBiggesPieceInCell,
   myId,
-  myPiecesColor,
-  enemyPiecesColor,
+  allyColor,
+  enemyColor,
 }) => {
   return (
     <Square size={size}>
@@ -35,22 +38,22 @@ const Board: React.FC<Props> = ({
         maxH="500px"
       >
         {board.map((cell) => {
-          const canPlace = !!selectedPiece && cell.canPlace(selectedPiece);
+          // const canPlace = !!selectedPiece && cell.canPlace(selectedPiece);
           return (
             <CellComponent
               key={cell.id}
-              ableToClick={canPlace}
-              onClick={() => {
-                if (canPlace) {
-                  placePieceInCell(selectedPiece!, cell);
-                }
-              }}
+              // ableToClick={canPlace}
+              // onClick={() => {
+              //   if (canPlace) {
+              //     placePieceInCell(selectedPiece!, cell);
+              //   }
+              // }}
               cell={cell}
-              canPlace={canPlace}
-              showOnlyBiggesPiece={showOnlyBiggesPieceInCell}
+              // canPlace={canPlace}
+              // showOnlyBiggesPiece={showOnlyBiggesPieceInCell}
               myId={myId}
-              myPiecesColor={myPiecesColor}
-              enemyPiecesColor={enemyPiecesColor}
+              myPiecesColor={allyColor}
+              enemyPiecesColor={enemyColor}
             />
           );
         })}
