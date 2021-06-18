@@ -18,13 +18,4 @@ export class Piece implements IPiece {
     this.size = size;
     this.used = false;
   }
-
-  toTransport(): IPiece {
-    return {
-      id: this.id,
-      ownerId: this.ownerId,
-      size: this.size,
-      used: this.used,
-    };
-  }
 }

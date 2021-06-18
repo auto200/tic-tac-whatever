@@ -12,14 +12,13 @@ import {
 } from "@chakra-ui/react";
 import { debounce } from "lodash";
 import { useEffect, useState } from "react";
-import { Cell, Game, Piece, Player } from "utils/classes";
 import Board from "../components/Board";
 import Pieces from "../components/Pieces";
 import { ALLY_PIECES_COLOR, ENEMY_PIECES_COLOR } from "utils/CONSTANTS";
 import { useGame } from "contexts/gameContext";
 
 const Home = () => {
-  const { game, playerMap, selectPiece } = useGame();
+  const { game, playerMap, selectPiece, placeSelectedPieceInCell } = useGame();
   const [boardSize, setBoardSize] = useState<number>(500);
   const [showOnlyBiggesPieceInCell, setShowOnlyBiggesPieceInCell] =
     useState<boolean>(false);
@@ -69,8 +68,14 @@ const Home = () => {
               <Board
                 size={boardSize}
                 board={game.board}
-                // selectedPiece={selectedPiece}
-                // placePieceInCell={placePieceInCell}
+                active={
+                  game.playerTurn === playerMap.ally.id &&
+                  !!playerMap.ally.selectedPieceId
+                }
+                cellIdsThatPieceCanBePlacedIn={
+                  playerMap.ally.cellIdsThatPieceCanBePlacedIn
+                }
+                placeSelectedPieceInCell={placeSelectedPieceInCell}
                 // showOnlyBiggesPieceInCell={showOnlyBiggesPieceInCell}
                 myId={playerMap.ally.id}
                 allyColor={ALLY_PIECES_COLOR}

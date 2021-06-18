@@ -42,11 +42,4 @@ export class Cell implements ICell {
       this.pieces.push(piece);
     }
   }
-
-  toTransport(): ICell {
-    return {
-      id: this.id,
-      pieces: this.pieces.map(({ toTransport }) => toTransport()),
-    };
-  }
 }

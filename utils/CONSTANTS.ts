@@ -1,4 +1,4 @@
-export const WINNING_CONDITIONS = [
+export const WINNING_CONDITIONS: [number, number, number][] = [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],

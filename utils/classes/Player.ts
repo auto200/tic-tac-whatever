@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { IPiece, Piece } from "./";
 
 export interface IPlayer {
@@ -7,15 +6,18 @@ export interface IPlayer {
   pieces: IPiece[];
   gameId: string;
   selectedPieceId: string;
+  cellIdsThatPieceCanBePlacedIn: string[];
 }
 
-export class Player {
+export class Player implements IPlayer {
   id: string;
   enemyId: string;
   pieces: Piece[];
   gameId: string;
   selectedPieceId: string;
-  constructor(id: string = nanoid()) {
+  cellIdsThatPieceCanBePlacedIn: string[];
+
+  constructor(id: string) {
     this.id = id;
     this.enemyId = "";
     this.pieces = [
@@ -28,15 +30,6 @@ export class Player {
     ];
     this.gameId = "";
     this.selectedPieceId = "";
-  }
-
-  toTransport(): IPlayer {
-    return {
-      id: this.id,
-      enemyId: this.enemyId,
-      pieces: this.pieces.map(({ toTransport }) => toTransport()),
-      gameId: this.gameId,
-      selectedPieceId: this.selectedPieceId,
-    };
+    this.cellIdsThatPieceCanBePlacedIn = [];
   }
 }

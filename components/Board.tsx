@@ -6,9 +6,9 @@ import CellComponent from "./Cell";
 interface Props {
   size: number;
   board: ICell[];
-  // allyTurn: boolean;
-  // selectedPiece: IPiece | null;
-  // placePieceInCell: (piece: IPiece, cell: ICell) => void;
+  active: boolean;
+  cellIdsThatPieceCanBePlacedIn: string[];
+  placeSelectedPieceInCell: (cellId: string) => void;
   // showOnlyBiggesPieceInCell: boolean;
   myId: string;
   allyColor: string;
@@ -18,9 +18,9 @@ interface Props {
 const Board: React.FC<Props> = ({
   size,
   board,
-  // allyTurn,
-  // selectedPiece,
-  // placePieceInCell,
+  active,
+  cellIdsThatPieceCanBePlacedIn,
+  placeSelectedPieceInCell,
   // showOnlyBiggesPieceInCell,
   myId,
   allyColor,
@@ -38,16 +38,15 @@ const Board: React.FC<Props> = ({
         maxH="500px"
       >
         {board.map((cell) => {
-          // const canPlace = !!selectedPiece && cell.canPlace(selectedPiece);
+          const canPlace =
+            active && cellIdsThatPieceCanBePlacedIn.includes(cell.id);
           return (
             <CellComponent
               key={cell.id}
-              // ableToClick={canPlace}
-              // onClick={() => {
-              //   if (canPlace) {
-              //     placePieceInCell(selectedPiece!, cell);
-              //   }
-              // }}
+              ableToClick={canPlace}
+              onClick={() => {
+                placeSelectedPieceInCell(cell.id);
+              }}
               cell={cell}
               // canPlace={canPlace}
               // showOnlyBiggesPiece={showOnlyBiggesPieceInCell}

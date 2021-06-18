@@ -1,3 +1,4 @@
+import { WINNING_CONDITIONS } from "utils/CONSTANTS";
 import { IPlayer, Player, ICell, Cell } from "./";
 
 export interface IGame {
@@ -30,65 +31,45 @@ export class Game implements IGame {
     this.winnerId = "";
     this.draw = false;
   }
-  toTransport(): IGame {
-    return {
-      id: this.id,
-      state: this.state,
-      players: Object.fromEntries(
-        Object.entries(this.players).map(([key, value]) => [
-          key,
-          value.toTransport(),
-        ])
-      ),
-      playerTurn: this.playerTurn,
-      board: this.board.map(({ toTransport }) => toTransport()),
-      winnerId: this.winnerId,
-      draw: this.draw,
-    };
-  }
-
-  //   checkForWinner(): string | null {
-  //     for (let condition of WINNING_CONDITIONS) {
-  //       const a = this.board[condition[0]].biggestPiece?.owner;
-  //       const b = this.board[condition[1]].biggestPiece?.owner;
-  //       const c = this.board[condition[2]].biggestPiece?.owner;
-  //       if (!a || !b || !c) {
-  //         continue;
-  //       }
-  //       if (a === b && b === c) {
-  //         this.winner = a;
-  //         return a;
-  //       }
-  //     }
-  //     return null;
-  //   }
 
   //https://dev.to/bornasepic/pure-and-simple-tic-tac-toe-with-javascript-4pgn
-  // const validateGameState = () => {
-  //   for (const condition of WINNING_CONDITIONS) {
-  //     const a = game.board[condition[0]].biggestPiece?.owner;
-  //     const b = game.board[condition[1]].biggestPiece?.owner;
-  //     const c = game.board[condition[2]].biggestPiece?.owner;
-  //     if (!a || !b || !c) {
-  //       continue;
-  //     }
-  //     if (a === b && b === c) {
-  //       setGame((draft) => {
-  //         draft.winner = draft.players.find(({ id }) => id === a)!;
-  //       });
-  //       return;
-  //     }
-  //   }
+  validateGameState(): boolean {
+    for (const [condA, condB, condC] of WINNING_CONDITIONS) {
+      const cellA = this.board[condA];
+      const cellB = this.board[condB];
+      const cellC = this.board[condC];
 
-  //   //check for draw
-  //   const player = game.players.find(({ id }) => id === game.playerTurn);
-  //   const draw = !player?.pieces.some((piece) =>
-  //     game.board.some((cell) => cell.canPlace(piece))
-  //   );
-  //   if (draw) {
-  //     setGame((draft) => {
-  //       draft.draw = true;
-  //     });
-  //   }
-  // };
+      const cellAOwner = cellA.biggestPiece?.ownerId;
+      const cellBOwner = cellB.biggestPiece?.ownerId;
+      const cellCOwner = cellC.biggestPiece?.ownerId;
+      if (!cellAOwner || !cellBOwner || !cellCOwner) {
+        continue;
+      }
+
+      if (cellAOwner === cellBOwner && cellBOwner === cellCOwner) {
+        this.winnerId = cellAOwner;
+        this.state = "ENDED";
+        return true;
+      }
+    }
+
+    //check for draw
+    const currentTurnPlayer = this.players[this.playerTurn];
+    const nextTurnPlayer = this.players[currentTurnPlayer.enemyId];
+
+    const draw = !nextTurnPlayer?.pieces.some((piece) =>
+      this.board.some((cell) => cell.canPlace(piece))
+    );
+    if (draw) {
+      this.draw = true;
+      this.state = "ENDED";
+
+      return true;
+    }
+
+    //toggle turn
+    this.playerTurn = nextTurnPlayer.id;
+
+    return false;
+  }
 }

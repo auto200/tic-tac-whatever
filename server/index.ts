@@ -79,8 +79,38 @@ const port = process.env.PORT || 3000;
         if (!piece) return;
 
         player.selectedPieceId = piece.id;
+        player.cellIdsThatPieceCanBePlacedIn = game.board
+          .filter((cell) => cell.canPlace(piece))
+          .map(({ id }) => id);
+
         socket.emit(SOCKET_EVENTS.GAME_UPDATE, game);
       });
+      socket.on(
+        SOCKET_EVENTS.PLACE_SELECTED_PIECE_IN_CELL,
+        (cellId: string) => {
+          const game = _games[player.gameId];
+          if (game?.playerTurn !== player.id) return;
+
+          const cell = game.board.find(({ id }) => id === cellId);
+          const piece = player.pieces.find(
+            ({ id }) => id === player.selectedPieceId
+          );
+          if (!cell || !piece) return;
+
+          if (player.cellIdsThatPieceCanBePlacedIn.includes(cell.id)) {
+            cell.push(piece);
+            player.selectedPieceId = "";
+            player.cellIdsThatPieceCanBePlacedIn = [];
+            const gameEnded = game.validateGameState();
+            io.to(player.gameId).emit(SOCKET_EVENTS.GAME_UPDATE, game);
+
+            if (gameEnded) {
+              delete _games[player.gameId];
+              player = new Player(socket.id);
+            }
+          }
+        }
+      );
     });
   } catch (e) {
     console.error(e);

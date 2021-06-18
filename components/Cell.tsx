@@ -2,8 +2,8 @@ import { Box, Flex, ScaleFade, Square } from "@chakra-ui/react";
 import { ICell } from "utils/classes";
 
 interface Props {
-  // ableToClick: boolean;
-  // onClick: () => void;
+  ableToClick: boolean;
+  onClick: () => void;
   cell: ICell;
   // canPlace: boolean;
   // showOnlyBiggesPiece: boolean;
@@ -12,8 +12,8 @@ interface Props {
   enemyPiecesColor: string;
 }
 const CellComponent: React.FC<Props> = ({
-  // onClick,
-  // ableToClick,
+  onClick,
+  ableToClick,
   cell,
   // canPlace,
   // showOnlyBiggesPiece,
@@ -28,9 +28,9 @@ const CellComponent: React.FC<Props> = ({
       justifyContent="center"
       alignItems="center"
       bgColor="gray.800"
-      // cursor={ableToClick ? "pointer" : ""}
-      // _hover={ableToClick ? { backgroundColor: "gray.900" } : {}}
-      // onClick={() => ableToClick && onClick()}
+      cursor={ableToClick ? "pointer" : ""}
+      _hover={ableToClick ? { backgroundColor: "gray.900" } : {}}
+      onClick={() => ableToClick && onClick()}
     >
       {/* {showOnlyBiggesPiece && biggestPieceInCell ? (
         <Square
