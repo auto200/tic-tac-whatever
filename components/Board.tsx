@@ -1,6 +1,5 @@
 import { Grid, Square } from "@chakra-ui/layout";
 import { ICell } from "utils/classes";
-// import { IPiece } from "utils/classes";
 import CellComponent from "./Cell";
 
 interface Props {
@@ -9,10 +8,11 @@ interface Props {
   active: boolean;
   cellIdsThatPieceCanBePlacedIn: string[];
   placeSelectedPieceInCell: (cellId: string) => void;
-  // showOnlyBiggesPieceInCell: boolean;
+  showOnlyBiggesPieceInCell: boolean;
   myId: string;
   allyColor: string;
   enemyColor: string;
+  winningCellsIds: string[];
 }
 
 const Board: React.FC<Props> = ({
@@ -21,10 +21,11 @@ const Board: React.FC<Props> = ({
   active,
   cellIdsThatPieceCanBePlacedIn,
   placeSelectedPieceInCell,
-  // showOnlyBiggesPieceInCell,
+  showOnlyBiggesPieceInCell,
   myId,
   allyColor,
   enemyColor,
+  winningCellsIds,
 }) => {
   return (
     <Square size={size}>
@@ -48,11 +49,12 @@ const Board: React.FC<Props> = ({
                 placeSelectedPieceInCell(cell.id);
               }}
               cell={cell}
-              // canPlace={canPlace}
-              // showOnlyBiggesPiece={showOnlyBiggesPieceInCell}
+              showOnlyBiggesPiece={showOnlyBiggesPieceInCell}
+              biggestPieceId={cell.biggestPieceId}
               myId={myId}
               myPiecesColor={allyColor}
               enemyPiecesColor={enemyColor}
+              highlight={winningCellsIds.includes(cell.id)}
             />
           );
         })}

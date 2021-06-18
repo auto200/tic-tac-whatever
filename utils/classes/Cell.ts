@@ -4,14 +4,18 @@ import { IPiece, Piece } from "./";
 export interface ICell {
   id: string;
   pieces: IPiece[];
+  biggestPieceId: string;
 }
 
 export class Cell implements ICell {
   id: string;
   pieces: Piece[];
+  biggestPieceId: string;
+
   constructor() {
     this.id = nanoid();
     this.pieces = [];
+    this.biggestPieceId = "";
   }
 
   get biggestPiece(): Piece | null {
@@ -40,6 +44,7 @@ export class Cell implements ICell {
     if (this.canPlace(piece)) {
       piece.used = true;
       this.pieces.push(piece);
+      this.biggestPieceId = piece.id;
     }
   }
 }

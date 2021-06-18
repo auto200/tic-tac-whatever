@@ -47,7 +47,7 @@ const Home = () => {
       {game ? (
         <>
           {game.state === "WAITING" && "Waiting for other player to join"}
-          {game.state === "PLAYING" && playerMap && (
+          {game.state !== "WAITING" && playerMap && (
             <>
               <Box>
                 <Heading m="10px">
@@ -59,7 +59,8 @@ const Home = () => {
                 pieces={playerMap.enemy.pieces}
                 color={ENEMY_PIECES_COLOR}
                 turnActive={
-                  !game.winnerId && game.playerTurn == playerMap.enemy.id
+                  game.state === "PLAYING" &&
+                  game.playerTurn === playerMap.enemy.id
                 }
                 owner="ENEMY"
                 selectedPieceId={playerMap.enemy.selectedPieceId}
@@ -76,17 +77,19 @@ const Home = () => {
                   playerMap.ally.cellIdsThatPieceCanBePlacedIn
                 }
                 placeSelectedPieceInCell={placeSelectedPieceInCell}
-                // showOnlyBiggesPieceInCell={showOnlyBiggesPieceInCell}
+                showOnlyBiggesPieceInCell={showOnlyBiggesPieceInCell}
                 myId={playerMap.ally.id}
                 allyColor={ALLY_PIECES_COLOR}
                 enemyColor={ENEMY_PIECES_COLOR}
+                winningCellsIds={game.winningCellsIds}
               />
 
               <Pieces
                 pieces={playerMap.ally.pieces}
                 color={ALLY_PIECES_COLOR}
                 turnActive={
-                  !game.winnerId && game.playerTurn === playerMap.ally.id
+                  game.state === "PLAYING" &&
+                  game.playerTurn === playerMap.ally.id
                 }
                 owner="ALLY"
                 selectedPieceId={playerMap.ally.selectedPieceId}
@@ -98,6 +101,17 @@ const Home = () => {
                   {game.winnerId === playerMap.ally.id && " WINNER!!!"}
                 </Heading>
               </Box>
+              <Center mt="50px">
+                <Checkbox
+                  isChecked={showOnlyBiggesPieceInCell}
+                  onChange={(e) =>
+                    setShowOnlyBiggesPieceInCell(e.target.checked)
+                  }
+                  size="lg"
+                  mr="5px"
+                />
+                Show only biggest piece in cell
+              </Center>
             </>
           )}
         </>

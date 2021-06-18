@@ -9,6 +9,7 @@ export interface IGame {
   board: ICell[];
   winnerId: string;
   draw: boolean;
+  winningCellsIds: string[];
 }
 
 export class Game implements IGame {
@@ -19,6 +20,7 @@ export class Game implements IGame {
   board: Cell[];
   winnerId: string;
   draw: boolean;
+  winningCellsIds: string[];
 
   constructor(id: string) {
     this.id = id;
@@ -30,6 +32,7 @@ export class Game implements IGame {
       .map(() => new Cell());
     this.winnerId = "";
     this.draw = false;
+    this.winningCellsIds = [];
   }
 
   //https://dev.to/bornasepic/pure-and-simple-tic-tac-toe-with-javascript-4pgn
@@ -48,6 +51,7 @@ export class Game implements IGame {
 
       if (cellAOwner === cellBOwner && cellBOwner === cellCOwner) {
         this.winnerId = cellAOwner;
+        this.winningCellsIds = [cellA.id, cellB.id, cellC.id];
         this.state = "ENDED";
         return true;
       }
