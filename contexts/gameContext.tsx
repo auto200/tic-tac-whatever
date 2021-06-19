@@ -80,7 +80,7 @@ const GameProvider: React.FC = ({ children }) => {
     if (router.query.id !== game.id) {
       router.push({ pathname: "/game", query: { id: game.id } });
     }
-  }, [game]);
+  }, [game, router]);
 
   useEffect(() => {
     if (!socket || !game) return;

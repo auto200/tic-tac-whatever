@@ -85,6 +85,7 @@ const port = process.env.PORT || 3000;
 
         socket.emit(SOCKET_EVENTS.GAME_UPDATE, game);
       });
+
       socket.on(
         SOCKET_EVENTS.PLACE_SELECTED_PIECE_IN_CELL,
         (cellId: string) => {

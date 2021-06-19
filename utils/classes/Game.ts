@@ -36,6 +36,10 @@ export class Game implements IGame {
   }
 
   //https://dev.to/bornasepic/pure-and-simple-tic-tac-toe-with-javascript-4pgn
+  /**
+   *
+   * @returns true if game has been finished
+   */
   validateGameState(): boolean {
     for (const [condA, condB, condC] of WINNING_CONDITIONS) {
       const cellA = this.board[condA];

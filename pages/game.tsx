@@ -9,19 +9,36 @@ import {
   ModalContent,
   ModalOverlay,
   Spinner,
+  Button,
+  Text,
+  useToast,
+  Image,
 } from "@chakra-ui/react";
-import { debounce } from "lodash";
+import { FiShare2 } from "react-icons/fi";
+import { debounce, sample } from "lodash";
 import { useEffect, useState } from "react";
 import Board from "../components/Board";
 import Pieces from "../components/Pieces";
 import { ALLY_PIECES_COLOR, ENEMY_PIECES_COLOR } from "utils/CONSTANTS";
 import { useGame } from "contexts/gameContext";
 
+const WHILE_WAITING_GIFS = [
+  "https://media.giphy.com/media/l1Et6k00qp9fMTP8s/giphy.gif",
+  "https://media.giphy.com/media/26grMgCg1xZh28AF2/giphy.gif",
+  "https://media.giphy.com/media/3o85xu3OLHOVvzZNra/giphy.gif",
+  "https://media.giphy.com/media/M8b747E4YlcuXSh71N/giphy.gif",
+  "https://media.giphy.com/media/YnZPEeeC7q6pQEZw1I/giphy.gif",
+];
+
 const Home = () => {
   const { game, playerMap, selectPiece, placeSelectedPieceInCell } = useGame();
   const [boardSize, setBoardSize] = useState<number>(500);
   const [showOnlyBiggesPieceInCell, setShowOnlyBiggesPieceInCell] =
     useState<boolean>(false);
+  const toast = useToast();
+  const [whileWaitingGIFSrc, setWhileWaitingGIFSrc] = useState<string>(
+    () => sample(WHILE_WAITING_GIFS)!
+  );
 
   useEffect(() => {
     const MAX_BOARD_WIDTH = 500;
@@ -46,13 +63,41 @@ const Home = () => {
     <>
       {game ? (
         <>
-          {game.state === "WAITING" && "Waiting for other player to join"}
+          {game.state === "WAITING" && (
+            <Box m="auto">
+              <Heading>Waiting for other player to join</Heading>
+              <Image src={whileWaitingGIFSrc} my={4} />
+              <Button
+                onClick={async () => {
+                  try {
+                    await window.navigator.clipboard.writeText(
+                      window.location.href
+                    );
+                    toast({
+                      title: "Link copied!",
+                      duration: 2000,
+                    });
+                  } catch (err) {
+                    toast({
+                      title: "Could not copy link",
+                      description: "Please copy link manually from the URL bar",
+                      duration: 5000,
+                      status: "error",
+                    });
+                  }
+                }}
+                rightIcon={<FiShare2 />}
+              >
+                Copy sharable link
+              </Button>
+            </Box>
+          )}
           {game.state !== "WAITING" && playerMap && (
             <>
               <Box>
                 <Heading m="10px">
                   ENEMY
-                  {game.winnerId === playerMap.enemy.id && " WINNER!!!"}
+                  {game.winnerId === playerMap.enemy.id && " WON"}
                 </Heading>
               </Box>
               <Pieces
@@ -98,7 +143,7 @@ const Home = () => {
               <Box>
                 <Heading m="10px">
                   YOU
-                  {game.winnerId === playerMap.ally.id && " WINNER!!!"}
+                  {game.winnerId === playerMap.ally.id && " WON!!!"}
                 </Heading>
               </Box>
               <Center mt="50px">
@@ -116,7 +161,10 @@ const Home = () => {
           )}
         </>
       ) : (
-        <Spinner />
+        <Center m="auto" flexDir="column">
+          <Spinner size="lg" />
+          <Text>Loading</Text>
+        </Center>
       )}
     </>
   );

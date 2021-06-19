@@ -17,7 +17,7 @@ const Pieces: React.FC<{
       m="10px"
       w="100%"
       maxW="550px"
-      outline={[null, null, turnActive ? `2px solid gray` : ""]}
+      outline={[null, turnActive ? `2px solid gray` : null]}
       bgColor={turnActive ? "gray.700" : "gray.800"}
     >
       {pieces.map((piece) => {
