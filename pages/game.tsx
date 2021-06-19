@@ -2,7 +2,6 @@ import {
   Box,
   Center,
   Checkbox,
-  Flex,
   Heading,
   Modal,
   ModalBody,
@@ -31,12 +30,13 @@ const WHILE_WAITING_GIFS = [
 ];
 
 const Home = () => {
-  const { game, playerMap, selectPiece, placeSelectedPieceInCell } = useGame();
+  const { game, playerMap, selectPiece, placeSelectedPieceInCell, endGame } =
+    useGame();
   const [boardSize, setBoardSize] = useState<number>(500);
   const [showOnlyBiggesPieceInCell, setShowOnlyBiggesPieceInCell] =
     useState<boolean>(false);
   const toast = useToast();
-  const [whileWaitingGIFSrc, setWhileWaitingGIFSrc] = useState<string>(
+  const [whileWaitingGIFSrc] = useState<string>(
     () => sample(WHILE_WAITING_GIFS)!
   );
 
@@ -166,6 +166,30 @@ const Home = () => {
           <Text>Loading</Text>
         </Center>
       )}
+      <Modal
+        isOpen={game?.state === "ENDED"}
+        onClose={endGame}
+        isCentered={true}
+        motionPreset="scale"
+      >
+        <ModalOverlay />
+        <ModalContent bgColor="transparent" boxShadow="">
+          <ModalBody textAlign="center">
+            <Heading>
+              {game?.draw && `Draw`}
+              {game?.winnerId &&
+                playerMap &&
+                `${
+                  Object.entries(playerMap).find(
+                    ([_, player]) => player.id === game.winnerId
+                  )![0] === "ally"
+                    ? "You"
+                    : "Enemy"
+                } win`}
+            </Heading>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

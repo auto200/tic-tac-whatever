@@ -15,6 +15,7 @@ interface IGameContext {
   playerMap: PlayerMap | null;
   selectPiece: (pieceId: string) => void;
   placeSelectedPieceInCell: (cellId: string) => void;
+  endGame: () => void;
 }
 
 const GameContext = createContext<IGameContext>({
@@ -23,6 +24,7 @@ const GameContext = createContext<IGameContext>({
   playerMap: null,
   selectPiece: () => {},
   placeSelectedPieceInCell: () => {},
+  endGame: () => {},
 });
 
 const GameProvider: React.FC = ({ children }) => {
@@ -44,6 +46,11 @@ const GameProvider: React.FC = ({ children }) => {
 
   const placeSelectedPieceInCell = (cellId: string) => {
     socket?.emit(SOCKET_EVENTS.PLACE_SELECTED_PIECE_IN_CELL, cellId);
+  };
+
+  const endGame = () => {
+    setGame(null);
+    router.push("/");
   };
 
   useEffect(() => {
@@ -101,6 +108,7 @@ const GameProvider: React.FC = ({ children }) => {
     playerMap,
     selectPiece,
     placeSelectedPieceInCell,
+    endGame,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
