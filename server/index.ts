@@ -33,7 +33,15 @@ const port = process.env.PORT || 3000;
       let player = new Player(socket.id);
 
       socket.on("disconnect", () => {
-        console.log("client disconnected");
+        const game = _games[player.gameId];
+        if (!game) return;
+
+        game.winnerId = game.players[player.enemyId].id;
+        game.state = "ENDED";
+
+        io.to(game.id).emit(SOCKET_EVENTS.GAME_UPDATE, game);
+
+        delete _games[game.id];
       });
 
       socket.on(SOCKET_EVENTS.CREATE_GAME, (cb) => {
@@ -63,9 +71,7 @@ const port = process.env.PORT || 3000;
               game.playerTurn = sample(Object.values(game.players))!.id;
             }
 
-            console.log("sending udate message");
-            console.log(game);
-            io.to(gameId).emit(SOCKET_EVENTS.GAME_UPDATE, game);
+            io.to(game.id).emit(SOCKET_EVENTS.GAME_UPDATE, game);
           }
           cb(canJoin);
         }
@@ -103,10 +109,10 @@ const port = process.env.PORT || 3000;
             player.selectedPieceId = "";
             player.cellIdsThatPieceCanBePlacedIn = [];
             const gameEnded = game.validateGameState();
-            io.to(player.gameId).emit(SOCKET_EVENTS.GAME_UPDATE, game);
+            io.to(game.id).emit(SOCKET_EVENTS.GAME_UPDATE, game);
 
             if (gameEnded) {
-              delete _games[player.gameId];
+              delete _games[game.id];
               player = new Player(socket.id);
             }
           }
