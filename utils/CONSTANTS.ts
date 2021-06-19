@@ -1,4 +1,4 @@
-export const WINNING_CONDITIONS = [
+export const WINNING_CONDITIONS: [number, number, number][] = [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
@@ -9,5 +9,5 @@ export const WINNING_CONDITIONS = [
   [2, 4, 6],
 ];
 
-export const MY_PIECES_COLOR = "green";
+export const ALLY_PIECES_COLOR = "green";
 export const ENEMY_PIECES_COLOR = "red";

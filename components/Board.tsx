@@ -1,27 +1,31 @@
 import { Grid, Square } from "@chakra-ui/layout";
-import { Cell, Piece } from "../classes";
+import { ICell } from "utils/classes";
 import CellComponent from "./Cell";
 
 interface Props {
   size: number;
-  board: Cell[];
-  selectedPiece: Piece | null;
-  placePieceInCell: (piece: Piece, cell: Cell) => void;
+  board: ICell[];
+  active: boolean;
+  cellIdsThatPieceCanBePlacedIn: string[];
+  placeSelectedPieceInCell: (cellId: string) => void;
   showOnlyBiggesPieceInCell: boolean;
   myId: string;
-  myPiecesColor: string;
-  enemyPiecesColor: string;
+  allyColor: string;
+  enemyColor: string;
+  winningCellsIds: string[];
 }
 
 const Board: React.FC<Props> = ({
   size,
   board,
-  selectedPiece,
-  placePieceInCell,
+  active,
+  cellIdsThatPieceCanBePlacedIn,
+  placeSelectedPieceInCell,
   showOnlyBiggesPieceInCell,
   myId,
-  myPiecesColor,
-  enemyPiecesColor,
+  allyColor,
+  enemyColor,
+  winningCellsIds,
 }) => {
   return (
     <Square size={size}>
@@ -35,22 +39,22 @@ const Board: React.FC<Props> = ({
         maxH="500px"
       >
         {board.map((cell) => {
-          const canPlace = !!selectedPiece && cell.canPlace(selectedPiece);
+          const canPlace =
+            active && cellIdsThatPieceCanBePlacedIn.includes(cell.id);
           return (
             <CellComponent
               key={cell.id}
               ableToClick={canPlace}
               onClick={() => {
-                if (canPlace) {
-                  placePieceInCell(selectedPiece!, cell);
-                }
+                placeSelectedPieceInCell(cell.id);
               }}
               cell={cell}
-              canPlace={canPlace}
               showOnlyBiggesPiece={showOnlyBiggesPieceInCell}
+              biggestPieceId={cell.biggestPieceId}
               myId={myId}
-              myPiecesColor={myPiecesColor}
-              enemyPiecesColor={enemyPiecesColor}
+              myPiecesColor={allyColor}
+              enemyPiecesColor={enemyColor}
+              highlight={winningCellsIds.includes(cell.id)}
             />
           );
         })}
