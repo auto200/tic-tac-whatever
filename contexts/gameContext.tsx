@@ -66,7 +66,6 @@ const GameProvider: React.FC = ({ children }) => {
       socket.disconnect();
     };
   }, []);
-  console.log(game);
 
   useEffect(() => {
     if (!socket) return;
@@ -94,13 +93,11 @@ const GameProvider: React.FC = ({ children }) => {
     const player = game.players?.[socket.id];
     if (!player?.enemyId) return;
 
-    console.log("tutaj:", game);
     setPlayerMap({
       ally: player,
       enemy: game.players[player.enemyId]!,
     });
   }, [socket, game]);
-  console.log(playerMap);
 
   const value = {
     game,
