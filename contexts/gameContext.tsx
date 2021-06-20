@@ -12,6 +12,7 @@ interface PlayerMap {
 interface IGameContext {
   game: IGame | null;
   createGame: () => void;
+  joinGame: (id: string) => void;
   playerMap: PlayerMap | null;
   selectPiece: (pieceId: string) => void;
   placeSelectedPieceInCell: (cellId: string) => void;
@@ -21,6 +22,7 @@ interface IGameContext {
 const GameContext = createContext<IGameContext>({
   game: null,
   createGame: () => {},
+  joinGame: () => {},
   playerMap: null,
   selectPiece: () => {},
   placeSelectedPieceInCell: () => {},
@@ -37,6 +39,16 @@ const GameProvider: React.FC = ({ children }) => {
   const createGame = () => {
     socket?.emit(SOCKET_EVENTS.CREATE_GAME, (id: string) => {
       router.push({ pathname: "/game", query: { id } });
+    });
+  };
+
+  const joinGame = (id: string) => {
+    if (!socket) return;
+
+    socket.emit(SOCKET_EVENTS.JOIN_GAME, id, (joined: boolean) => {
+      if (!joined) {
+        router.push("/");
+      }
     });
   };
 
@@ -68,27 +80,6 @@ const GameProvider: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!socket) return;
-
-    const { id } = router.query;
-    if (!id) return;
-
-    socket.emit(SOCKET_EVENTS.JOIN_GAME, id, (joined: boolean) => {
-      if (!joined) {
-        router.push("/");
-      }
-    });
-  }, [socket, router]);
-
-  useEffect(() => {
-    if (!game) return;
-
-    if (router.query.id !== game.id) {
-      router.push({ pathname: "/game", query: { id: game.id } });
-    }
-  }, [game, router]);
-
-  useEffect(() => {
     if (!socket || !game) return;
     const player = game.players?.[socket.id];
     if (!player?.enemyId) return;
@@ -102,6 +93,7 @@ const GameProvider: React.FC = ({ children }) => {
   const value = {
     game,
     createGame,
+    joinGame,
     playerMap,
     selectPiece,
     placeSelectedPieceInCell,

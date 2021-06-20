@@ -20,6 +20,7 @@ import Board from "../components/Board";
 import Pieces from "../components/Pieces";
 import { ALLY_PIECES_COLOR, ENEMY_PIECES_COLOR } from "utils/CONSTANTS";
 import { useGame } from "contexts/gameContext";
+import { useRouter } from "next/dist/client/router";
 
 const WHILE_WAITING_GIFS = [
   "https://media.giphy.com/media/l1Et6k00qp9fMTP8s/giphy.gif",
@@ -30,8 +31,14 @@ const WHILE_WAITING_GIFS = [
 ];
 
 const Home = () => {
-  const { game, playerMap, selectPiece, placeSelectedPieceInCell, endGame } =
-    useGame();
+  const {
+    game,
+    joinGame,
+    playerMap,
+    selectPiece,
+    placeSelectedPieceInCell,
+    endGame,
+  } = useGame();
   const [boardSize, setBoardSize] = useState<number>(500);
   const [showOnlyBiggesPieceInCell, setShowOnlyBiggesPieceInCell] =
     useState<boolean>(false);
@@ -39,6 +46,7 @@ const Home = () => {
   const [whileWaitingGIFSrc] = useState<string>(
     () => sample(WHILE_WAITING_GIFS)!
   );
+  const router = useRouter();
 
   useEffect(() => {
     const MAX_BOARD_WIDTH = 500;
@@ -58,6 +66,12 @@ const Home = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    const { id } = router.query;
+    if (!id || typeof id !== "string") return;
+    joinGame(id);
+  }, [router]);
 
   return (
     <>
