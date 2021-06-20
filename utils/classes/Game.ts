@@ -4,7 +4,7 @@ import { IPlayer, Player, ICell, Cell } from "./";
 export interface IGame {
   id: string;
   state: "WAITING" | "PLAYING" | "ENDED";
-  players: { [key: string]: IPlayer };
+  players: { [key: string]: IPlayer | undefined };
   playerTurn: string;
   board: ICell[];
   winnerId: string;
@@ -15,7 +15,7 @@ export interface IGame {
 export class Game implements IGame {
   id: string;
   state: "WAITING" | "PLAYING" | "ENDED";
-  players: { [key: string]: Player };
+  players: { [key: string]: Player | undefined };
   playerTurn: string;
   board: Cell[];
   winnerId: string;
@@ -63,7 +63,7 @@ export class Game implements IGame {
 
     //check for draw
     const currentTurnPlayer = this.players[this.playerTurn];
-    const nextTurnPlayer = this.players[currentTurnPlayer.enemyId];
+    const nextTurnPlayer = this.players[currentTurnPlayer!.enemyId];
 
     const draw = !nextTurnPlayer?.pieces.some((piece) =>
       this.board.some((cell) => cell.canPlace(piece))
@@ -76,7 +76,7 @@ export class Game implements IGame {
     }
 
     //toggle turn
-    this.playerTurn = nextTurnPlayer.id;
+    this.playerTurn = nextTurnPlayer!.id;
 
     return false;
   }

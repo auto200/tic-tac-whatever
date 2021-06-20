@@ -36,7 +36,7 @@ const port = process.env.PORT || 3000;
         const game = _games[player.gameId];
         if (!game) return;
 
-        game.winnerId = game.players[player.enemyId].id;
+        game.winnerId = game.players[player.enemyId]?.id || "";
         game.state = "ENDED";
 
         io.to(game.id).emit(SOCKET_EVENTS.GAME_UPDATE, game);
@@ -65,6 +65,7 @@ const port = process.env.PORT || 3000;
 
             if (Object.keys(game.players).length === 2) {
               const [player1, player2] = Object.values(game.players);
+              if (!player1 || !player2) return;
               player1.enemyId = player2.id;
               player2.enemyId = player1.id;
               game.state = "PLAYING";
