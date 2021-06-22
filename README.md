@@ -1,7 +1,7 @@
-##Demo 👉 [Codesandbox](https://codesandbox.io/s/github/auto200/tic-tac-whatever)
+## Demo 👉 [Codesandbox](https://codesandbox.io/s/github/auto200/tic-tac-whatever)
 (error 502 may occur, just open in new window and/or wait untill it restarts)
 
-####This is a Upgraded Bersion of tic tac toe game inspired by [this post](https://9gag.com/gag/aQomRzK)
+### This is a Upgraded Bersion of tic tac toe game inspired by [this post](https://9gag.com/gag/aQomRzK)
 
 <img src="preview.gif" alt="preview">
 
